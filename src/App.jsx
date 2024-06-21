@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import { transactionData } from "./data/transaction";
-
+import Error  from './components/Error'
 const App = () => {
   const [apiData, setApiData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchApi = async () => {
@@ -12,7 +13,8 @@ const App = () => {
         //Simulating API call
         const result = await new Promise((resolve) =>
           setTimeout(() => {
-            resolve(transactionData);
+             resolve(transactionData);
+            //reject('404 error')
           }, 1000)
         );
 
@@ -20,6 +22,8 @@ const App = () => {
         setLoading(false);
       } catch (err) {
         console.log(err);
+        setError(err)
+        setLoading(false)
         throw err;
       }
     };
@@ -35,11 +39,12 @@ const App = () => {
         ((amount - 100) * 2 + 1 * 50);
     }
     if (
-      amount > 50 &&
-      amount < 100
+      amount >= 50 &&
+      amount <= 100
     ) {
       totalPoints = totalPoints + (amount - 50);
     }
+
     
     return totalPoints
   }
@@ -88,7 +93,8 @@ const App = () => {
  
   return (
     <div className="App">
-      {apiData.length > 0 && !loading ? (
+      
+      {apiData.length > 0 && !loading  ? (
         <table>
           <thead>
             <tr>
@@ -111,7 +117,7 @@ const App = () => {
             ))}
           </tbody>
         </table>
-      ) : <p>...Loading</p>}
+      ) : (error.length !== 0 ? <Error error={error} />:<p>... Loading</p>)}
     </div>
   );
 };
