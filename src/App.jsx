@@ -30,23 +30,20 @@ const App = () => {
     fetchApi();
   }, []);
 
-  //
+  // Calculates points per month
   const calculatePointsPerMonth = (amount) => {
-    let totalPoints = 0;
-    if (amount > 100) {
-      totalPoints =
-      totalPoints +
-        ((amount - 100) * 2 + 1 * 50);
-    }
-    if (
-      amount >= 50 &&
-      amount <= 100
-    ) {
-      totalPoints = totalPoints + (amount - 50);
-    }
+    let points = 0;
 
-    
-    return totalPoints
+    if (amount > 100) {
+      points += (amount - 100) * 2;
+      amount = 100;
+    }
+  
+    if (amount > 50) {
+      points += (amount - 50);
+    }
+  
+    return points;
   }
 
   //This function takes api results array and  calculates rewards per customer and returns an array of objects containing total rewards and rewards per month.
