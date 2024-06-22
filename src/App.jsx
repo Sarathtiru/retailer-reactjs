@@ -39,7 +39,7 @@ const App = () => {
         ((amount - 100) * 2 + 1 * 50);
     }
     if (
-      amount > 50 &&
+      amount >= 50 &&
       amount <= 100
     ) {
       totalPoints = totalPoints + (amount - 50);
