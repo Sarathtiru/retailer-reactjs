@@ -1,3 +1,5 @@
+import {calculatePoints} from './calculatePoints'
+
 /** This function dynamically calculates monthly points based on the given transaction information from api call */
 
 export const calculateMonthlyPoints = (transactions) => {
@@ -20,18 +22,3 @@ export const calculateMonthlyPoints = (transactions) => {
   return pointsByMonth;
 };
 
-// Calculates points per month
-const calculatePoints = (amount) => {
-  let points = 0;
-
-  if (amount > 100) {
-    points += (amount - 100) * 2;
-    amount = 100;
-  }
-
-  if (amount > 50) {
-    points += amount - 50;
-  }
-
-  return points;
-};

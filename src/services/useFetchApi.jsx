@@ -7,17 +7,17 @@ export const useFetchApi = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const fetchData = async (path) => {
+  const fetchData = async () => {
     try {
       //Simulating API call
-      const result = await (await fetch(path)).json();
+      const result = await (await fetch("transactions.json")).json();
       setApiData(parseApiData(result));
       log.info("Data fetched successfully");
       setLoading(false);
     } catch (err) {
       console.log(err);
       setError(err.toString());
-      log.error("Failed to fetch data", error);
+      log.error("Failed to fetch data", err);
       setLoading(false);
       throw err;
     }
