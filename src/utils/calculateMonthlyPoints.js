@@ -16,7 +16,7 @@ export const calculateMonthlyPoints = (transactions) => {
 
     pointsByMonth[month] += points;
   });
-  console.log(pointsByMonth);
+ 
   return pointsByMonth;
 };
 
