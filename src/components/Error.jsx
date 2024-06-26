@@ -1,14 +1,11 @@
-import PropTypes from 'prop-types'
+import PropTypes from "prop-types";
 
-const Error = ({error}) => {
-  return (
-    <div>{error}</div>
-  )
-}
+const Error = ({ error }) => {
+  return <div>{error}</div>;
+};
 
 Error.propTypes = {
-  error: PropTypes.string.isRequired
-}
+  error: PropTypes.string.isRequired,
+};
 
-export default Error
-
+export default Error;

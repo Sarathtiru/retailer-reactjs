@@ -1,120 +1,58 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import "./App.css";
-import { transactionData } from "./data/transaction";
-import Error  from './components/Error'
+import { calculateMonthlyPoints } from "./utils/calculateMonthlyPoints.js";
+import Error from "./components/Error";
+import { useFetchApi } from "./services/useFetchApi";
+import log from "./logger";
+
 const App = () => {
-  const [apiData, setApiData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const { fetchData, apiData, loading, error } = useFetchApi();
 
   useEffect(() => {
+    log.info("Component mounted or updated");
     const fetchApi = async () => {
       try {
-        //Simulating API call
-        const result = await new Promise((resolve) =>
-          setTimeout(() => {
-             resolve(transactionData);
-            //reject('404 error')
-          }, 1000)
-        );
-
-        setApiData(calculateRewardsPerCustomer(result));
-        setLoading(false);
+        await fetchData("transactions.json");
+        log.info("Data fetched successfully");
       } catch (err) {
-        console.log(err);
-        setError(err)
-        setLoading(false)
-        throw err;
+        log.error("Failed to fetch data:", error);
       }
     };
     fetchApi();
   }, []);
 
-  // Calculates points per month
-  const calculatePointsPerMonth = (amount) => {
-    let points = 0;
-
-    if (amount > 100) {
-      points += (amount - 100) * 2;
-      amount = 100;
-    }
-  
-    if (amount > 50) {
-      points += (amount - 50);
-    }
-  
-    return points;
-  }
-
-  //This function takes api results array and  calculates rewards per customer and returns an array of objects containing total rewards and rewards per month.
-  const calculateRewardsPerCustomer = (result) => {
-    return result.map((itm) => {
-      let totalRewards = 0;
-      let rewardsInJanuary = 0;
-      let rewardsInFebruary = 0;
-      let rewardsInMarch = 0;
-
-      //This loops through transaction array per customer
-      itm.transactions.forEach((transaction) => {
-        switch (true) {
-          //Calculates January rewards
-          case new Date(transaction.dateOfTransaction).getMonth() === 0:
-            rewardsInJanuary =  rewardsInJanuary + calculatePointsPerMonth(transaction.purchaseAmount)
-
-            break;
-          //Calculates February rewards
-          case new Date(transaction.dateOfTransaction).getMonth() === 1:
-            rewardsInFebruary =  rewardsInFebruary + calculatePointsPerMonth(transaction.purchaseAmount)
-            break;
-          // Calculates March rewards
-          case new Date(transaction.dateOfTransaction).getMonth() === 2:
-            rewardsInMarch =  rewardsInMarch + calculatePointsPerMonth(transaction.purchaseAmount)
-
-            break;
-          default:
-            break;
-        }
-      });
-      //Calculates total rewards per customer
-      totalRewards = rewardsInJanuary + rewardsInFebruary + rewardsInMarch;
-
-      return {
-        customerName: itm.customerName,
-        totalRewards,
-        rewardsInJanuary,
-        rewardsInFebruary,
-        rewardsInMarch,
-      };
-    });
-  };
- 
   return (
     <div className="App">
-      
-      {apiData.length > 0 && !loading  ? (
-        <table>
-          <thead>
-            <tr>
-              <th>Customer Name</th>
-              <th>Total Rewards</th>
-              <th>Rewards In January</th>
-              <th>Rewards In February</th>
-              <th>Rewards In March</th>
-            </tr>
-          </thead>
-          <tbody>
-            {apiData.map((itm, idx) => (
-              <tr key={idx}>
-                <td>{itm.customerName}</td>
-                <td>{itm.totalRewards}</td>
-                <td>{itm.rewardsInJanuary}</td>
-                <td>{itm.rewardsInFebruary}</td>
-                <td>{itm.rewardsInMarch}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : (error.length !== 0 ? <Error error={error} />:<p>... Loading</p>)}
+      {apiData && apiData.length > 0 && !loading ? (
+        <>
+          <h1>Customer Rewards</h1>
+          {apiData.map((customer) => {
+            const monthlyPoints = calculateMonthlyPoints(customer.transactions);
+            const totalPoints = Object.values(monthlyPoints).reduce(
+              (acc, points) => acc + points,
+              0
+            );
+
+            return (
+              <div key={customer.customerId} className="customer">
+                <h2>{customer.customerName}</h2>
+                <ul>
+                  {Object.keys(monthlyPoints).map((month) => (
+                    <li key={month}>
+                      {month}: {monthlyPoints[month]} points
+                    </li>
+                  ))}
+                </ul>
+                <p>Total Points: {totalPoints}</p>
+              </div>
+            );
+          })}
+        </>
+      ) : error && error.length !== 0 ? (
+        <Error error={error} />
+      ) : (
+        <p>... Loading</p>
+      )}
     </div>
   );
 };
